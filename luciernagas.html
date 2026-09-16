@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luciernagas</title>
+</head>
+<body>
+
+    <div class="easter-egg">Pista #3:
+        <span>25</span>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="controls">
+
+        <button onclick="formarFigura('te_amo')">Click</button>
+
+        <button onclick="formarFigura('corazon')">Click</button>
+
+        <button onclick="formarFigura('flor')">Click</button>
+
+        <button onclick="formarFigura('me_encantas')">Click</button>
+
+        <button onclick="formarFigura('estrella')">Click</button>
+
+        <button onclick="formarFigura('feliz_año')">Click</button>
+
+        <button onclick="formarFigura('libre')">Libre</button>
+
+        <a href="index.html" class="btn-back">Menú</a>
+
+    </div>
+
+</body>
+</html>
+    
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0A001C;
+            overflow: hidden;
+            font-family: Arial;
+            color: #0A001C;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            z-index: 10;
+            max-width: 90%;
+        }
+
+        button, .btn-back {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #FFF;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        button:hover, .btn-back:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-10px);
+            box-shadow: 0 0 15px rgba(255, 220, 100, 0.5);
+        }
+
+        .easter-egg {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+
+        .easter-egg span {
+            color: #FFE600;
+            font-weight: bold;
+        }
+</style>
+
+<script>
+        const canvas = document.getElementById('canvas');
+
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+
+            height = canvas.height = window.innerHeight;
+        });
+
+        const NUM_FIREFLIES = 710;
+
+        const fireflies = [];
+
+        class Firefly {
+            constructor() {
+                this.x = Math.random() * width;
+
+                this.y = Math.random() * height;
+
+                this.targetX = this.x;
+
+                this.targetY = this.y;
+
+                this.vx = (Math.random() - 0.5) * 1.5;
+
+                this.vy = (Math.random() - 0.5) * 1.5;
+
+                this.radius = Math.random() * 2.5 + 1.5;
+
+                this.alpha = Math.random();
+
+                this.alphaSpeed = Math.random() * 0.02 + 0.005;
+
+                this.mode = 'libre';
+            }
+
+            update() {
+                this.alpha += this.alphaSpeed;
+
+                if (this.alpha >= 1 || this.alpha <= 0.2) {
+                    this.alphaSpeed = -this.alphaSpeed;
+                }
+
+                if (this.mode === 'libre') {
+                    this.x += this.vx;
+
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > width) this.vx *= -1;
+
+                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                } else {
+                    this.x += (this.targetX - this.x) * 0.05;
+
+                    this.y += (this.targetY - this.y) * 0.05;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+
+                ctx.fillStyle = `rgba(255, 230, 100, ${this.alpha})`;
+
+                ctx.shadowBlur = 12;
+
+                ctx.shadowColor = "rgba(255, 220, 80, 0.9)";
+
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < NUM_FIREFLIES; i++) {
+            fireflies.push(new Firefly());
+        }
+
+        function obtenerPuntosTexto(texto) {
+            const tempCanvas = document.createElement('canvas');
+
+            const tempCtx = tempCanvas.getContext('2d');
+
+            tempCanvas.width = width;
+
+            tempCanvas.height = height;
+
+            const fontSize = Math.min(width / (texto.length * 0.7), 90);
+
+            tempCtx.font = `bold ${fontSize}px sans-serif`;
+
+            tempCtx.fillStyle = "white";
+
+            tempCtx.textAlign = "center";
+            tempCtx.textBaseline = "middle";
+            tempCtx.fillText(texto, width / 2, height / 2);
+
+            const imgData = tempCtx.getImageData(0, 0, width, height).data;
+
+            const puntos = [];
+
+            for (let y = 0; y < height; y += 7) {
+                for (let x = 0; x < width; x += 7) {
+                    const index = (y * width + x) * 4;
+
+                    if (imgData[index + 3] > 128) {
+                        puntos.push({ x, y });
+                    }
+                }
+            }
+            return puntos;
+        }
+
+        function obtenerPuntosCorazon() {
+            const puntos = [];
+
+            const scale = Math.min(width, height) / 40;
+
+            for (let i = 0; i < NUM_FIREFLIES; i++) {
+                const t = (i / NUM_FIREFLIES) * Math.PI * 2;
+
+                const x = 16 * Math.pow(Math.sin(t), 3);
+
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+                puntos.push({
+                    x: width / 2 + x * scale,
+                    y: height / 2 + y * scale
+                });
+            }
+            return puntos;
+        }
+
+        function obtenerPuntosEstrella() {
+            const puntos = [];
+
+            const R = Math.min(width, height) / 3;
+
+            const r = R / 2;
+
+            for (let i = 0; i < NUM_FIREFLIES; i++) {
+                const angle = (i / NUM_FIREFLIES) * Math.PI * 2;
+
+                const radius = R * (1 + 0.5 * Math.sin(5 * angle));
+
+                puntos.push({
+                    x: width / 2 + radius * Math.cos(angle),
+                    y: height / 2 + radius * Math.sin(angle)
+                });
+            }
+            return puntos;
+        }
+
+        function obtenerPuntosFlor() {
+            const puntos = [];
+
+            const scale = Math.min(width, height) / 3.5;
+
+            for (let i = 0; i < NUM_FIREFLIES; i++) {
+                const theta = (i / NUM_FIREFLIES) * Math.PI * 2;
+
+                const r = scale * Math.cos(6 * theta);
+
+                puntos.push({
+                    x: width / 2 + r * Math.cos(theta),
+                    y: height / 2 + r * Math.sin(theta)
+                });
+            }
+            return puntos;
+        }
+
+        function formarFigura(tipo) {
+            let puntos = [];
+
+            if (tipo === 'te_amo') puntos = obtenerPuntosTexto("TE AMO");
+
+            else if (tipo === 'me_encantas') puntos = obtenerPuntosTexto("ME ENCANTAS");
+
+            else if (tipo === 'feliz_año') puntos = obtenerPuntosTexto("PRIMER AÑO JUNTOS");
+
+            else if (tipo === 'corazon') puntos = obtenerPuntosCorazon();
+
+            else if (tipo === 'estrella') puntos = obtenerPuntosEstrella();
+
+            else if (tipo === 'flor') puntos = obtenerPuntosFlor();
+
+            fireflies.forEach((f, i) => {
+                f.mode = tipo;
+
+                if (tipo === 'libre') {
+                    f.vx = (Math.random() - 0.5) * 1.5;
+
+                    f.vy = (Math.random() - 0.5) * 1.5;
+
+                } else if (puntos.length > 0) {
+                    const p = puntos[i % puntos.length];
+
+                    f.targetX = p.x + (Math.random() - 0.5) * 8;
+
+                    f.targetY = p.y + (Math.random() - 0.5) * 8;
+                }
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            fireflies.forEach(f => {
+                f.update();
+
+                f.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+</script>

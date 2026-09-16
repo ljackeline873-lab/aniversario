@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rueda de la fortuna</title>
+</head>
+<body>
+
+    <canvas id="canvas-fw"></canvas>
+
+    <div class="easter-egg">Pista 2: <span>09</span></div>
+
+    <div class="stage">
+
+        <h2>Rueda de la fortuna</h2>
+
+        <div class="ferris-wheel-container">
+            <div class="wheel-stand"></div>
+
+            <div class="wheel" id="wheel"></div>
+
+        </div>
+
+        <div class="controls">
+            <button class="btn-ctrl" onclick="spinWheel()">Girar Rueda</button>
+
+            <a href="index.html" class="btn-nav">Volver al Menú</a>
+
+        </div>
+    </div>
+
+    <div class="modal" id="note-modal">
+        <div class="modal-content">
+            
+            <div class="modal-number" id="modal-title">CABINA</div>
+
+            <div class="modal-text" id="modal-body">Mensaje aquí</div>
+
+            <button class="btn-close" onclick="closeModal()">Cerrar</button>
+
+        </div>
+    </div>
+</body>
+</html>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #050515;
+            color: #FFFFFF;
+            font-family: Papyrus;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        #canvas-fw {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .easter-egg {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .easter-egg span {
+            color: #FF758F;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .stage {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: #E0AAFF;
+            text-shadow: 0 0 10px rgba(224, 170, 255, 0.5);
+            text-align: center;
+        }
+
+        .ferris-wheel-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wheel {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+            transition: transform 3s cubic-bezier(0.1, 0.7, 0.1, 1);
+        }
+
+        .wheel-stand {
+            position: absolute;
+            bottom: -30px;
+            width: 0;
+            height: 0;
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-bottom: 120px solid rgba(255, 255, 255, 0.15);
+            z-index: -1;
+        }
+
+        .cabin {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #7B2CBF, #3C096C);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #FFF;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .cabin:hover {
+            background: #FF758F;
+            transform: scale(1.2) !important;
+            box-shadow: 0 0 15px #FF758F;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn-ctrl, .btn-nav {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ctrl:hover, .btn-nav:hover {
+            background: #FF758F;
+            border-color: #FF758F;
+            box-shadow: 0 0 15px rgba(255, 117, 143, 0.6);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            animation: popIn 0.3s ease forwards;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-number {
+            font-size: 0.9rem;
+            color: #FF758F;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .modal-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #F1F1F1;
+            margin-bottom: 25px;
+            white-space: pre-line;
+        }
+
+        .btn-close {
+            background: #FF758F;
+            border: none;
+            color: #FFF;
+            padding: 10px 25px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .btn-close:hover {
+            background: #FF4D6D;
+        }
+    </style>
+
+        <script>
+        const notas = [
+            "1. Me encanta cuando hablas de algo que te gusta, incluso cuando no entiendo ni una palabra, siento que a veces hablas en otro idioma (o cuando te veo me distraigo fácil con tu rostro).",
+            "2. Me encanta cada uno de tus rasgos, tu nariz, tus orejas, tu cabello, tus cejas, tus ojos, tus pestañas y sobre todo tus labios, cada una de tus partes son tan lindas y tan hipnotizantes.",
+            "3. Me encanta cuando pasamos tiempo juntos. Haciendo cualquier cosa, incluso si estamos en silencio me gusta que estemos juntos.",
+            "4. Me encanta hablar sobre cualquier tema, mas cuando son teorías locas sobre cualquier serie o tema, es tan lindo cuando lo hacemos.",
+            "5. Cada uno de mis latidos esta dedicado hacia ti, mi alma y corazon se guian por ti teniendo la certeza de que los kilómetros algún día ya no nos separaran.",
+            "6. El futuro puede ser incierto, puede que haya caminos difíciles por recorrer, sin embargo, lucharemos para contruir una vida juntos.",
+            "7. Confesión: Aunque hay distancia y ya hemos pasado un año juntos, todavía me haces sentir mariposas, ademas muchas veces cuando te veo y estamos hablando me dan tantos nervios.",
+            "8. Amor a traves de una pantalla que luchara hasta que el hilo de la vida los una al final para formar una vida juntos.",
+            "9. Me llena de orgullo el hombre que eres, eres una luz sin igual, un ejemplo a seguir, lo mas valioso para mi.",
+            "10. Me encantan nuestros chistes que solo nos hacen reir a nosotros, que son ranciosos y que a veces el otro no entiende eso, es como nuestro codigo secreto de amor ¿No piensas lo mismo tú?.",
+            "11. Confesión: Incluso al imaginar tu lindo rostro sonrio como una desquisiada, como una total loca enamorada de ti.",
+            "12. Nuestra melodias internas sonando juntas y en sincronia al ritmo del compaz, cada nota que forman es una de las más bellas.",
+            "13. Eres tan radiante como el sol, ¿como no amarte? oh dulce amor, ¿como no desearte? y si eres tan lindo ¿como no pensarte?. Eras, eres y seras todo para mi, siempre te amare solo a ti.",
+            "14. Eres mi lugar seguro, la voz y rostro que me traen inspiracion, incluso en la penumbra o el silencio mas denso me impulsas hacia delante.",
+            "15. ¿Te has visto al espejo? Cada gesto de tu rostro es perfecto, eres un encanto sin igual, que sin duda me hace soñar.",
+            "16. Confesión: A veces envidio a las persona que pueden verte, escucharte, dirigirte la palabra o estar cerca de ti, mientras que yo estoy lejos (ojala se extingan unu)."
+        ];
+
+        const wheel = document.getElementById('wheel');
+
+        const totalCabins = 16;
+
+        const radius = 135;
+
+        for (let i = 0; i < totalCabins; i++) {
+            const angle = (i * (360 / totalCabins)) * (Math.PI / 180);
+
+            const x = 150 + radius * Math.cos(angle) - 16;
+
+            const y = 150 + radius * Math.sin(angle) - 16;
+
+            const cabin = document.createElement('div');
+
+            cabin.className = 'cabin';
+
+            cabin.style.left = `${x}px`;
+
+            cabin.style.top = `${y}px`;
+
+            cabin.innerText = i + 1;
+
+            cabin.onclick = () => openNote(i);
+
+            wheel.appendChild(cabin);
+        }
+
+        let currentRotation = 0;
+
+        function spinWheel() {
+            currentRotation += Math.floor(Math.random() * 360) + 720;
+
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+        }
+
+        function openNote(index) {
+            document.getElementById('modal-title').innerText = `CABINA ${index + 1}`;
+
+            document.getElementById('modal-body').innerText = notas[index];
+
+            document.getElementById('note-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('note-modal').style.display = 'none';
+        }
+
+        const canvas = document.getElementById('canvas-fw');
+
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+
+                this.y = y;
+
+                this.color = color;
+
+                this.radius = Math.random() * 2 + 1;
+
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 6,
+                    y: (Math.random() - 0.5) * 6
+                };
+                this.alpha = 1;
+
+                this.friction = 0.98;
+            }
+
+            draw() {
+                ctx.save();
+
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            update() {
+                this.velocity.x *= this.friction;
+
+                this.velocity.y *= this.friction;
+
+                this.x += this.velocity.x;
+
+                this.y += this.velocity.y;
+
+                this.alpha -= 0.015;
+            }
+        }
+
+        function createFirework() {
+            const x = Math.random() * canvas.width;
+
+            const y = Math.random() * (canvas.height * 0.5);
+
+            const colors = ['#ff758f', '#e0aaff', '#70d6ff', '#ffd670', '#ff9770'];
+
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            for (let i = 0; i < 35; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        setInterval(createFirework, 1200);
+
+        function animateFW() {
+            requestAnimationFrame(animateFW);
+
+            ctx.fillStyle = 'rgba(5, 5, 21, 0.2)';
+
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, index) => {
+                if (particle.alpha > 0) {
+                    particle.update();
+
+                    particle.draw();
+
+                } else {
+                    particles.splice(index, 1);
+                }
+            });
+        }
+        animateFW();
+    </script>

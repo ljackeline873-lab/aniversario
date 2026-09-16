@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flores</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+</head>
+<body>
+
+
+    <audio id="bg-music" loop src="Fallen_Angel.mp3"></audio>
+
+    <div class="music-player">
+
+        <button class="music-btn" id="play-btn" onclick="toggleMusic()">🎵</button>
+
+        <span>Fallen Angel</span>
+
+    </div>
+
+    <div class="easter-egg">Pista 1:<span>16</span></div>
+
+    <div id="canvas-container"></div>
+
+    <div class="nav-controls">
+        
+        <a href="index.html" class="btn-ui">Volver al Menú</a>
+
+    </div>
+
+</body>
+</html>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: Papyrus;
+            background-color: #87CEEB;
+            user-select: none;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            cursor: grab;
+        }
+
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+
+        .music-player {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 18px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2C3E50;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-btn {
+            background: #FFFFFF;
+            border: none;
+            color: #D63384;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .easter-egg {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 18px;
+            border-radius: 30px;
+            color: #2C3E50;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .easter-egg span {
+            color: #679FF0;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .nav-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-ui {
+            background: rgba(255, 255, 255, 0.85);
+            color: #2C3E50;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-ui:hover {
+            background: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .heart-bubble {
+            position: absolute;
+            bottom: -50px;
+            pointer-events: none;
+            z-index: 4;
+            animation: floatUp 5s linear infinite;
+            opacity: 0.02;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.8) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-110vh) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+
+        <script>
+
+        const container = document.getElementById('canvas-container');
+        
+        const scene = new THREE.Scene();
+
+        scene.background = new THREE.Color(0x87ceeb);
+
+        scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        camera.position.set(0, 1.7, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        container.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xfffaed, 0.8);
+
+        dirLight.position.set(50, 100, 50);
+
+        scene.add(dirLight);
+
+        const groundGeo = new THREE.PlaneGeometry(200, 200);
+
+        const groundMat = new THREE.MeshLambertMaterial({ color: 0x4baa32 });
+
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        const tulipColors = [0xff4d6d, 0xff758f, 0xffb3c1, 0xffb703, 0x9d4edd];
+
+        const tulipGroup = new THREE.Group();
+
+        function createTulip(x, z, colorHex) {
+            const group = new THREE.Group();
+
+            const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 8);
+
+            const stemMat = new THREE.MeshLambertMaterial({ color: 0x2d6a4f });
+
+            const stem = new THREE.Mesh(stemGeo, stemMat);
+
+            stem.position.y = 0.4;
+            group.add(stem);
+
+            const flowerGeo = new THREE.SphereGeometry(0.12, 12, 12);
+            flowerGeo.scale(1, 1.4, 1);
+
+            const flowerMat = new THREE.MeshLambertMaterial({ color: colorHex });
+
+            const flower = new THREE.Mesh(flowerGeo, flowerMat);
+
+            flower.position.y = 0.8;
+
+            group.add(flower);
+
+            group.position.set(x, 0, z);
+
+            return group;
+        }
+
+        for (let i = 0; i < 2000; i++) {
+            const r = 2 + Math.random() * 60;
+
+            const theta = Math.random() * Math.PI * 2;
+
+            const x = r * Math.cos(theta);
+
+            const z = r * Math.sin(theta);
+
+            const color = tulipColors[Math.floor(Math.random() * tulipColors.length)];
+
+            const tulip = createTulip(x, z, color);
+
+            tulipGroup.add(tulip);
+        }
+        scene.add(tulipGroup);
+
+
+        const cloudGroup = new THREE.Group();
+
+        const cloudGeo = new THREE.SphereGeometry(3, 8, 8);
+
+        const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
+
+        for (let i = 0; i < 25; i++) {
+            const cloud = new THREE.Mesh(cloudGeo, cloudMat);
+
+            cloud.position.set(
+                (Math.random() - 0.5) * 150,
+                15 + Math.random() * 15,
+                (Math.random() - 0.5) * 150
+            );
+
+            cloud.scale.set(Math.random() * 2 + 1, Math.random() * 0.8 + 0.5, Math.random() * 2 + 1);
+
+            cloudGroup.add(cloud);
+        }
+        scene.add(cloudGroup);
+
+        let isMouseDown = false;
+
+        let lon = 0, lat = 0;
+
+        let phi = 0, theta = 0;
+
+        let onPointerDownPointerX = 0, onPointerDownPointerY = 0;
+
+        let onPointerDownLon = 0, onPointerDownLat = 0;
+
+        container.addEventListener('pointerdown', (e) => {
+            isMouseDown = true;
+
+            onPointerDownPointerX = e.clientX;
+
+            onPointerDownPointerY = e.clientY;
+
+            onPointerDownLon = lon;
+
+            onPointerDownLat = lat;
+        });
+
+        document.addEventListener('pointermove', (e) => {
+            if (!isMouseDown) return;
+
+            lon = (onPointerDownPointerX - e.clientX) * 0.15 + onPointerDownLon;
+
+            lat = (e.clientY - onPointerDownPointerY) * 0.15 + onPointerDownLat;
+
+            lat = Math.max(-85, Math.min(85, lat));
+        });
+
+        document.addEventListener('pointerup', () => {
+            isMouseDown = false;
+        });
+
+
+        let time = 0.1;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+
+            time += 0.02;
+
+            tulipGroup.children.forEach((tulip, idx) => {
+                tulip.rotation.z = Math.sin(time + idx) * 0.12;
+
+                tulip.rotation.x = Math.cos(time + idx) * 0.11;
+            });
+
+
+            phi = THREE.MathUtils.degToRad(90 - lat);
+
+            theta = THREE.MathUtils.degToRad(lon);
+
+            const target = new THREE.Vector3();
+
+            target.x = camera.position.x + 100 * Math.sin(phi) * Math.cos(theta);
+
+            target.y = camera.position.y + 100 * Math.cos(phi);
+
+            target.z = camera.position.z + 100 * Math.sin(phi) * Math.sin(theta);
+
+            camera.lookAt(target);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+
+        const audio = document.getElementById('bg-music');
+
+        const playBtn = document.getElementById('play-btn');
+
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play();
+
+                playBtn.innerText = '⏸️';
+            } else {
+                audio.pause();
+
+                playBtn.innerText = '🎵';
+            }
+        }
+
+
+        function createHeartBubbles() {
+            const heart = document.createElement('div');
+
+            heart.className = 'heart-bubble';
+
+            heart.innerText = ['🩵', '🤍', '🩵', '🤍'][Math.floor(Math.random() * 4)];
+
+            heart.style.left = Math.random() * 100 + 'vw';
+
+            heart.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+
+            heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+
+            document.body.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 9000);
+        }
+
+        setInterval(createHeartBubbles, 800);
+    </script>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia</title>
+</head>
+<body>
+    <div class="quiz-card">
+        <div class="header-title">Trivia en el claro de Joni</div>
+
+        <div class="subtitle">Demuestra qué tanto conoces</div>
+
+        <div class="question-box active" id="q1">
+            <div class="q-text">1. ¿Cuál es el juego que mas nos gusta jugar a ambos?</div>
+            
+            <div class="options-grid">
+                <button class="btn-option" onclick="nextQuestion(true)">Hollow Knight</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Minecraft</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Roblox</button>
+
+                <button class="btn-option" onclick="nextQuestion(true)">Mobile Legends</button>
+            </div>
+
+        </div>
+
+        <div class="question-box" id="q2">
+           
+            <div class="q-text">2. ¿Cuál es nuestra saga favorita?</div>
+
+            <div class="options-grid">
+                <button class="btn-option" onclick="nextQuestion(false)">DC Comics</button>
+
+                <button class="btn-option" onclick="nextQuestion(true)">Marvel</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Star Wars</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">My little Pony</button>
+            </div>
+
+            <div class="question-box" id="q2">
+            <div class="q-text">2. ¿Quién dice la frase: <i>"No puedo controlar su miedo, solo el mío"</i>?</div>
+
+            <div class="options-grid">
+                <button class="btn-option" onclick="nextQuestion(false)">Natasha Romanoff (Black Widow)</button>
+
+                <button class="btn-option" onclick="nextQuestion(true)">Wanda Maximoff (Bruja Escarlata)</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Carol Danvers (Capitana Marvel)</button>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="question-box" id="q3">
+            <div class="q-text">3. ¿Cual fue la comida de nuestra primera cita?</div>
+
+            <div class="options-grid">
+                <button class="btn-option" onclick="nextQuestion(false)">Pasta</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Tacos</button>
+
+                <button class="btn-option" onclick="nextQuestion(true)">Sushi</button>
+            </div>
+        </div>
+
+        <div class="question-box" id="q4">
+            <div class="q-text">4.
+            En el patinaje, ¿En el 2022 que patinadora realizo 5 saltos cuadrupes?</div>
+
+            <div class="options-grid">
+                <button class="btn-option" onclick="nextQuestion(true)">Alexandra Trusova</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Kamila Valieva</button>
+
+                <button class="btn-option" onclick="nextQuestion(false)">Anna Shcherbakova</button>
+            </div>
+        </div>
+
+        <div class="result-box" id="results">
+            <div style="font-size: 1.2rem; color: #E0F4FF;">¡Trivia Completada! </div>
+
+            <div class="score-num" id="score-display">4 / 4</div>
+
+            <p style="font-size: 0.95rem; color: #8AC8FF; margin-bottom: 20px;">
+                ¡Lo hiciste excelente!
+            </p>
+
+            <a href="final.html" class="btn-skip" style="background: #00D4FF; color: #020712; font-weight: bold;">Ir al final</a>
+        </div>
+
+        <div class="action-row">
+            <a href="index.html" class="btn-link">Volver al Menú</a>
+
+            <a href="sorpresa.html" class="btn-skip">Saltar Trivia</a>
+        </div>
+    </div>
+</body>
+</html>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0B1D3A, #020712);
+            color: #D4F0FF;
+            font-family: Papyrus;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .quiz-card {
+            background: rgba(10, 30, 60, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 24px;
+            padding: 35px 25px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(0, 162, 255, 0.25);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            text-align: center;
+            color: #00D4FF;
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #8AC8FF;
+            margin-bottom: 25px;
+        }
+
+        .question-box {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .question-box.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .q-text {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: #FFFFFF;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-option {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #E0F4FF;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .btn-option:hover {
+            background: rgba(0, 212, 255, 0.25);
+            border-color: #00D4FF;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            transform: translateX(4px);
+        }
+
+        .result-box {
+            display: none;
+            text-align: center;
+        }
+
+        .score-num {
+            font-size: 2.5rem;
+            color: #00D4FF;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 0 0 15px #00D4FF;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-link {
+            color: #8AC8FF;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .btn-link:hover {
+            color: #00D4FF;
+        }
+
+        .btn-skip {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFF;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .btn-skip:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .butterfly {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00D4FF;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #00D4FF, 0 0 20px #00D4FF;
+            pointer-events: none;
+            animation: floatButterfly 7s infinite ease-in-out;
+            opacity: 0.8;
+        }
+
+        @keyframes floatButterfly {
+            0% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
+            50% { transform: translate(60px, -80px) scale(1.3); opacity: 1; }
+            100% { transform: translate(-40px, -160px) scale(0.6); opacity: 0; }
+        }
+    </style>
+
+        <script>
+        let currentStep = 1;
+
+        let score = 0;
+
+        const totalQuestions = 4;
+
+        function nextQuestion(isCorrect) {
+            if (isCorrect) score++;
+
+            document.getElementById(`q${currentStep}`).classList.remove('active');
+
+            currentStep++;
+
+            if (currentStep <= totalQuestions) {
+                document.getElementById(`q${currentStep}`).classList.add('active');
+
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('results').style.display = 'block';
+
+            document.getElementById('score-display').innerText = `${score} / ${totalQuestions}`;
+
+            document.querySelector('.action-row').style.display = 'none';
+        }
+
+        function createButterflies() {
+            for (let i = 0; i < 20; i++) {
+                const butterfly = document.createElement('div');
+
+                butterfly.className = 'butterfly';
+
+                butterfly.style.left = Math.random() * 100 + 'vw';
+
+                butterfly.style.top = (Math.random() * 50 + 50) + 'vh';
+
+                butterfly.style.animationDuration = (Math.random() * 4 + 4) + 's';
+
+                butterfly.style.animationDelay = (Math.random() * 3) + 's';
+
+                document.body.appendChild(butterfly);
+            }
+        }
+        createButterflies();
+    </script>
